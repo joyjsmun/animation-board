@@ -1,71 +1,51 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, useViewportScroll } from "framer-motion";
+import { useEffect, useRef } from "react";
 
-const Wrapper = styled.div`
-  height: 100vh;
-  width: 100vw;
+const Wrapper = styled(motion.div)`
+ width: 100vw;
+  height: 200vh;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const Box = styled(motion.div)`
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   display: grid;
   grid-template-columns: repeat(2,1fr);
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color:white;
+  border-radius: 15px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  
 `;
 
-const Circle = styled(motion.div)`
- background-color: white;
-  height: 70px;
-  width: 70px;
-  place-self: center;
-  border-radius: 35px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
-`
 
 const boxVariants = {
-  start: {
-    opacity: 0,
-    scale: 0.5,
-  },
-  end: {
-    scale: 1,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      duration: 0.5,
-      bounce: 0.5,
-      delayChildren: 0.5,
-      staggerChildren: 0.2,
-    },
-  },
+ drag:{backgroundColor:"rgb(108, 92, 231)"}
 };
 
-const circleVariants = {
-  start: {
-    opacity: 0,
-    y: 10,
-  },
-  end: {
-    opacity: 1,
-    y: 0,
-  },
-};
+
 
 function App() {
+  const mv = useMotionValue(0);
+  const {scrollYProgress} = useViewportScroll();
+  const scale = useTransform(scrollYProgress,[0,1],[0.1,5])
+ 
+  const rotateZ = useTransform(mv, [-800, 800], [-360, 360]);
+  const gradient = useTransform(
+    mv,
+    [-800, 800],
+    [
+      "linear-gradient(135deg, rgb(0, 210, 238), rgb(0, 83, 238))",
+      "linear-gradient(135deg, rgb(0, 238, 155), rgb(238, 178, 0))",
+    ]
+  );
   return (
-    <Wrapper>
-      <Box variants={boxVariants} initial="start" animate="end">
-      <Circle variants={circleVariants}/>
-      <Circle variants={circleVariants}/>
-      <Circle variants={circleVariants}/>
-      <Circle variants={circleVariants}/>
-        </Box>
-    </Wrapper>
+    <Wrapper style={{ background: gradient }}>
+     <Box style={{x:mv,rotateZ,scale}} drag="x" dragSnapToOrigin variants={boxVariants} />
+     </Wrapper>
   );
 }
 
